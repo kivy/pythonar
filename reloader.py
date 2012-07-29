@@ -5,7 +5,15 @@ from subprocess import Popen
 from argparse import ArgumentParser, REMAINDER
 from time import sleep
 
-parser = ArgumentParser(description='TODO')
+parser = ArgumentParser(description='''
+Allows to start a program, and to monitor changes in a folder, when changes are
+detected in the folder, the command is restarted.
+
+This can be useful to test a software you are developping and having immediate
+feedback.
+Or to restart a daemon when configuration or data changes.
+Or any other use, the sky is the limit :)
+''')
 parser.add_argument('-p', '--path', type=str, default='.', help='set the path to monitor for changes')
 parser.add_argument('-a', '--action', type=str, default='restart', help='what action to perform when changes are detected')
 #parser.add_argument('-i', '--ignore', type=str, default='',
