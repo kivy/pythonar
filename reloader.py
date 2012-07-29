@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from multiprocessing import Process, Queue
 from subprocess import Popen
 from argparse import ArgumentParser, REMAINDER
 from time import sleep
@@ -19,25 +18,16 @@ class RestartHandler(FileSystemEventHandler):
         self.command = command
         self.start()
 
-    def start(self):
-        q = Queue()
-        self.process = Process(target=self._start, args=(q,))
-        self.process.start()
-        self._process = q.get()
-        print self, 'SELF'
-
     def stop(self):
         self._process.terminate()
         print 'TERMINATED'
 
-    def _start(self, q):
-        _process = Popen(self.command)
-        q.put(_process)
-        print 'STARTED', _process
+    def start(self):
+        self._process = Popen(self.command)
+        print 'STARTED', self._process
 
     def on_any_event(self, event):
         print 'terminating', self
-        print self.process, '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
         self.stop()
         self.start()
 
