@@ -17,6 +17,8 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+
   -p PATH, --path PATH  set the path to monitor for changes
+
   -a ACTION, --action ACTION
                         what action to perform when changes are detected
