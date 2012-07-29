@@ -13,12 +13,14 @@ restart a daemon when configuration or data changes. Or any other use, the sky
 is the limit :)
 
 positional arguments:
-  command
+
+    command
 
 optional arguments:
-  -h, --help            show this help message and exit
 
-  -p PATH, --path PATH  set the path to monitor for changes
+    -h, --help            show this help message and exit
 
-  -a ACTION, --action ACTION
+    -p PATH, --path PATH  set the path to monitor for changes
+
+    -a ACTION, --action ACTION
                         what action to perform when changes are detected
