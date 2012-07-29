@@ -4,6 +4,7 @@ from watchdog.events import FileSystemEventHandler
 from subprocess import Popen
 from argparse import ArgumentParser, REMAINDER
 from time import sleep
+import re
 
 parser = ArgumentParser(description='''
 Allows to start a program, and to monitor changes in a folder, when changes are
@@ -16,7 +17,7 @@ Or any other use, the sky is the limit :)
 ''')
 parser.add_argument('-p', '--path', type=str, default='.', help='set the path to monitor for changes')
 parser.add_argument('-a', '--action', type=str, default='restart', help='what action to perform when changes are detected')
-#parser.add_argument('-i', '--ignore', type=str, default='',
+parser.add_argument('-i', '--ignorelist', type=str, default='', nargs='*', help='files to ignore')
 parser.add_argument('command', type=str, nargs=REMAINDER)
 
 
@@ -24,6 +25,7 @@ class RestartHandler(FileSystemEventHandler):
     def __init__(self, command, path, ignorelist, **kwargs):
         super(RestartHandler, self).__init__(**kwargs)
         self.command = command
+        self.ignorelist = ignorelist
         self.start()
 
     def stop(self):
@@ -35,6 +37,10 @@ class RestartHandler(FileSystemEventHandler):
         print 'STARTED', self._process
 
     def on_any_event(self, event):
+        for i in self.ignorelist:
+            if re.compile('^' + i.replace('*', '.*') + '$').match(event.src_path):
+                return
+
         print 'terminating', self
         self.stop()
         self.start()
@@ -59,4 +65,4 @@ def monitor(command, path, action, ignorelist=None):
 if __name__ == '__main__':
     args = parser.parse_args()
     print args
-    monitor(args.command, args.path, args.action)  # args.ignorelist)
+    monitor(args.command, args.path, args.action, args.ignorelist)
