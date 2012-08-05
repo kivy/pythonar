@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import FileSystemEventHandler, FileMovedEvent
 from subprocess import Popen, PIPE
 from argparse import ArgumentParser, REMAINDER
 from time import time, sleep
 import re
+
+try:
+    import colorama
+    colorama.init()
+except ImportError:
+    colorama = None
+
+try:
+    from termcolor import colored
+except ImportError:
+    colored = None
 
 parser = ArgumentParser(description='''
 Allows to start a program, and to monitor changes in a folder, when changes are
@@ -19,28 +30,38 @@ parser.add_argument('-p', '--path', type=str, default='.', help='set the path to
 parser.add_argument('-a', '--action', type=str, default='restart', help='what action to perform when changes are detected')
 parser.add_argument('-i', '--ignorelist', type=str, default='', nargs='*', help='files to ignore')
 parser.add_argument('-f', '--focus', type=int, default=0, help='save focus and restore it for the next n seconds after restarting application, require xdotool (linux only)')
+parser.add_argument('-s', '--sleep', type=int, default=0, help='ignore events for n seconds after the last restart')
 parser.add_argument('command', type=str, nargs=REMAINDER)
 
 
+def log(color, string):
+    if colored:
+        print colored(string, color)
+    else:
+        print string
+
+
 class RestartHandler(FileSystemEventHandler):
-    def __init__(self, command, path, ignorelist, focus, **kwargs):
+    def __init__(self, command, path, ignorelist, focus, sleeptime, **kwargs):
         super(RestartHandler, self).__init__(**kwargs)
         self.command = command
         self.ignorelist = ignorelist
         self.focus = focus
+        self.sleep = sleeptime
         self.start()
 
     def stop(self):
         self._process.terminate()
-        print 'TERMINATED'
+        log('red', 'TERMINATED')
 
     def start(self):
+        self._last_restart = time()
         if self.focus:
             t = time()
             wid = int(Popen(['/usr/bin/env', 'xdotool', 'getwindowfocus'], stdout=PIPE).communicate()[0])
 
         self._process = Popen(self.command)
-        print 'STARTED', self._process
+        log('green', 'STARTED %s' % self._process)
 
         if self.focus:
             while time() < t + self.focus:
@@ -48,18 +69,25 @@ class RestartHandler(FileSystemEventHandler):
                 sleep(.01)
 
     def on_any_event(self, event):
+        if self.sleep and time() < self._last_restart + self.sleep:
+            return
+
         for i in self.ignorelist:
-            if re.compile('^' + i.replace('*', '.*') + '$').match(event.src_path):
+            r = re.compile('^' + i.replace('*', '.*') + '$')
+            if r.match(event.src_path):
+                return
+            if isinstance(event, FileMovedEvent) and r.match(event.dest_path):
                 return
 
-        print 'terminating', self
+        log('blue', '%s RESTARTING' % event)
+
         self.stop()
         self.start()
 
 
-def monitor(command, path, action, focus, ignorelist=None):
+def monitor(command, path, action, focus, sleeptime, ignorelist=None):
         if action == 'restart':
-            ev = RestartHandler(command, path=path, focus=focus, ignorelist=ignorelist)
+            ev = RestartHandler(command, path=path, focus=focus, sleeptime=sleeptime, ignorelist=ignorelist)
         else:
             raise NotImplementedError('action %s not implemented' % action)
 
@@ -75,5 +103,5 @@ def monitor(command, path, action, focus, ignorelist=None):
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    print args
-    monitor(args.command, args.path, args.action, args.focus, args.ignorelist)
+    log('blue', str(args))
+    monitor(args.command, args.path, args.action, args.focus, args.sleep, args.ignorelist)
