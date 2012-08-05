@@ -12,11 +12,17 @@ test a software you are developping and having immediate feedback. Or to
 restart a daemon when configuration or data changes. Or any other use, the sky
 is the limit :)
 
+/!\ if still alive before a restart, the process will be killed, your
+program has to be able to be killed without corrupting anything, which is
+always a nice feature for a software anyway :).
+
 positional arguments:
+---------------------
 
     command
 
 optional arguments:
+-------------------
 
     -h, --help            show this help message and exit
 
@@ -24,3 +30,20 @@ optional arguments:
 
     -a ACTION, --action ACTION
                         what action to perform when changes are detected
+
+    -i FILES, --ignorelist FILES
+    			list of filepatterns to ignore use * as glob,
+			used on complete filename
+
+    -s SECONDS, --sleep SECONDS
+    			ignore all events SECONDS seconds after the last
+			restart
+
+dummy exemple:
+--------------
+
+	./reloader.py -p testdir -i *.sw* -s 2 -a restart ls -l
+
+    will restart a ls process every time a file is created/changed/deleted
+    in testdir folder, ignoring all vim swapfiles, and won't listen to any
+    event less than 2 seconds after the last restart.
