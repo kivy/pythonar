@@ -37,7 +37,7 @@ optional arguments:
 
     -f SECONDS, --focus SECONDS
                         (linux only for now) Will prevent anything from
-                        slealing focus for SECONDS seconds.
+                        stealing focus for SECONDS seconds.
 
     -s SECONDS, --sleep SECONDS
     			ignore all events SECONDS seconds after the last
