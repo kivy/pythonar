@@ -6,7 +6,7 @@ when you change source code or resources, thus providing a better workflow.
 
 usage:
 
-    reloader.py [-h] [-p PATH] [-a ACTION] ...
+    reloader.py [-h] [-p PATH] [-a ACTION] [-f SECONDS] [-i IGNORELIST] [-s SECONDS] command
 
 Allows to start a program, and to monitor changes in a folder, when changes
 are detected in the folder, the command is restarted. This can be useful to
