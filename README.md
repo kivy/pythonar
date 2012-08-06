@@ -4,7 +4,9 @@ PythonAR
 This project intend to provide a very simple way to restart applications
 when you change source code or resources, thus providing a better workflow.
 
-usage: reloader.py [-h] [-p PATH] [-a ACTION] ...
+usage:
+
+    reloader.py [-h] [-p PATH] [-a ACTION] ...
 
 Allows to start a program, and to monitor changes in a folder, when changes
 are detected in the folder, the command is restarted. This can be useful to
@@ -32,22 +34,22 @@ optional arguments:
                         what action to perform when changes are detected
 
     -i FILES, --ignorelist FILES
-    			list of filepatterns to ignore use * as glob,
-			used on complete filename
+                        list of filepatterns to ignore use * as glob,
+                        used on complete filename
 
     -f SECONDS, --focus SECONDS
                         (linux only for now) Will prevent anything from
                         stealing focus for SECONDS seconds.
 
     -s SECONDS, --sleep SECONDS
-    			ignore all events SECONDS seconds after the last
-			restart
+                        ignore all events SECONDS seconds after the last
+                        restart
 
 dummy exemple:
 --------------
 
-	./reloader.py -p testdir -i *.sw* -s 2 -a restart ls -l
+    ./reloader.py -p testdir -i *.sw* -s 2 -a restart ls -l
 
-    will restart a ls process every time a file is created/changed/deleted
-    in testdir folder, ignoring all vim swapfiles, and won't listen to any
-    event less than 2 seconds after the last restart.
+will restart a ls process every time a file is created/changed/deleted
+in testdir folder, ignoring all vim swapfiles, and won't listen to any
+event less than 2 seconds after the last restart.
