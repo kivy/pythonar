@@ -35,6 +35,10 @@ optional arguments:
     			list of filepatterns to ignore use * as glob,
 			used on complete filename
 
+    -f SECONDS, --focus SECONDS
+                        (linux only for now) Will prevent anything from
+                        slealing focus for SECONDS seconds.
+
     -s SECONDS, --sleep SECONDS
     			ignore all events SECONDS seconds after the last
 			restart
