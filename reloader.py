@@ -72,8 +72,12 @@ class RestartHandler(FileSystemEventHandler):
         self._process = Popen(self.command)
         log('green', 'STARTED %s' % self._process)
 
-        self.swid = int(Popen(['/usr/bin/env', 'xdotool', 'getwindowfocus'],
-                              stdout=PIPE).communicate()[0])
+        if geometry:
+            self.swid = int(Popen(['/usr/bin/env', 'xdotool', 'getwindowfocus'],
+                                  stdout=PIPE).communicate()[0])
+        else:
+            self.swid = None
+
         if self.focus:
             while time() < t + self.focus:
                 # try to detect a window appeared by tracking focus
