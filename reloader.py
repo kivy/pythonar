@@ -5,6 +5,7 @@ from subprocess import Popen, PIPE
 from argparse import ArgumentParser, REMAINDER
 from time import time, sleep
 import re
+import six
 
 try:
     import colorama
@@ -43,9 +44,9 @@ parser.add_argument('command', type=str, nargs=REMAINDER)
 
 def log(color, string):
     if colored:
-        print colored(string, color)
+        six.print_(colored(string, color))
     else:
-        print string
+        six.print_(string)
 
 
 class RestartHandler(FileSystemEventHandler):
@@ -71,8 +72,12 @@ class RestartHandler(FileSystemEventHandler):
         self._process = Popen(self.command)
         log('green', 'STARTED %s' % self._process)
 
-        self.swid = int(Popen(['/usr/bin/env', 'xdotool', 'getwindowfocus'],
-                              stdout=PIPE).communicate()[0])
+        if geometry:
+            self.swid = int(Popen(['/usr/bin/env', 'xdotool', 'getwindowfocus'],
+                                  stdout=PIPE).communicate()[0])
+        else:
+            self.swid = None
+
         if self.focus:
             while time() < t + self.focus:
                 # try to detect a window appeared by tracking focus
@@ -80,7 +85,7 @@ class RestartHandler(FileSystemEventHandler):
                 swid = int(Popen(['/usr/bin/env', 'xdotool', 'getwindowfocus'],
                                  stdout=PIPE).communicate()[0])
                 if swid != wid:
-                    print "got swid", swid
+                    six.print_("got swid", swid)
                     self.swid = swid
                     if geometry:
                         self.replace(geometry)
@@ -92,7 +97,7 @@ class RestartHandler(FileSystemEventHandler):
             self.replace(geometry)
 
     def replace(self, geometry):
-        print geometry
+        six.print_(geometry)
         x, y = geometry.split('\n')[1].strip().split(' ')[1].split(',')
         w, h = geometry.split('\n')[2].strip().split(' ')[1].split('x')
         Popen(['/usr/bin/env', 'xdotool', 'windowsize', str(self.swid), w, h])
